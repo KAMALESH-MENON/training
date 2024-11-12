@@ -4,31 +4,57 @@ class Logic:
     def __init__(self):
         self.products = []
 
-    def add_product(self, product):
-        """add product to products"""
-        if product in self.products:
+    def add_product(self, new_product):
+        """
+        add product object to products list
+        
+        input: new_product object
+        
+        return: boolean
+        """
+        if new_product in self.products:
             return False
-        self.products.append(product)
+        self.products.append(new_product)
         return True
 
     def list_products(self):
-        """list all products"""
+        """
+        list all products
+        
+        return: if products exists in products list returns list
+                else empty list
+        """
         if self.products:
             return self.products
-        return False
+        return []
 
-    def update_product(self, product_id, price):
-        """update the price of given product_id"""
+    def update_product(self, update_product):
+        #product_id and price should be a object -> updated_product
+        """
+        update the price of given given input odjects id
+        
+        input: update_product object
+        
+        return: boolean
+        
+        """
         for product in self.products:
-            if product.id == product_id:
-                product.price = price
+            if product.id == update_product.id:
+                product.price = update_product.price
                 return True
         return False
 
     def apply_discount(self, discount_percentage):
-        """apply discount to all products"""
+        """
+        apply discount to all products
+        
+        input: int 
+        
+        return: if applied discount_percentage to all product's price 
+                returns list of product, else returns empty list 
+        """
         if self.products:
             for product in self.products:
                 product.price = product.price - (product.price * (discount_percentage/100))
-            return True
-        return False
+            return self.products
+        return []

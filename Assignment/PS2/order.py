@@ -1,31 +1,37 @@
-"""order class"""
+# Importing necessary modules
+from product import Product
+
 class Order:
-    """order class"""
+    """A class to handle order functionality."""
+
     def __init__(self, order_id):
+        """Initialize the Order with order_id"""
         self.order_id = order_id
-        self.order_dict = {order_id : []}
+        self.products = []
         self.total = 0
 
-    def __str__(self):
-        s=""
-        for i in self.order_dict.get(self.order_id):
-            s+=str(i)
-        return f"order id : {self.order_id}, products: {s}, total: {self.calculate_total(self.order_id)}"
-
-    def add_product(self, order_id, product):
-        """add product to orderdict """
-        self.order_dict[order_id].append(product)
-        return self.order_dict
-
-    def calculate_total(self, order_id):
-        """adds product to the products_li"""
-        total = 0
-        for product in self.order_dict[order_id]:
-            total += product.price
-        return total
-
-    def delete_order(self, order_id):
-        if order_id in self.order_dict.keys():
-            del self.order_dict[order_id]
+    def add_product(self, new_product):
+        """
+        adds new_product object in products list
+        
+        input : product object
+        
+        returns : bool
+        """
+        if isinstance(new_product, Product):
+            self.products.append(new_product)
+            self.total += new_product.price
             return True
         return False
+
+    def calculate_total(self):
+        """
+        calculates total price of each product in products list
+        
+        returns : float (total price of all products)
+        """
+        return sum(product.price for product in self.products)
+
+    def __str__(self):
+        products_str = ', '.join(str(product) for product in self.products)
+        return f"Order ID: {self.order_id}, Products: [{products_str}], Total: {self.calculate_total()}"
