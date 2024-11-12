@@ -19,8 +19,8 @@ if __name__ == "__main__":
         print("Not Added")
     """
     #update_status = L1.update(2, "Stopped", "Priority 5", "Chennai")
-    # Temp =  Task(2, "task 21", "Running fast", "Priority 5", "CBE")
-    # update_status = L1.update(Temp)
+    Temp =  Task(2, "task 21", "Running fast", "Priority 5", "CBE")
+    update_status = L1.update(Temp)
     # print(update_status)
     # if update_status:
     #     print("Updated Successfully")
