@@ -10,6 +10,7 @@ class Emp:
 
     def __str__(self):
         return f"emp no: {self.emp_no}, dept id: {self.dept_id}"
+
     @classmethod
     def from_csv_row(cls, row):
         emp_no, dept_id = row
