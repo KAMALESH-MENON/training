@@ -1,18 +1,33 @@
 from product import Product
 import csv
+import os
 """logic part of PS1"""
 class Logic:
     """logic part of PS1"""
     def __init__(self):
         self.products = []
 
+    def read_products_from_csv(filename='products.csv'):
+        products = []
+        with open(filename, mode='r') as file:
+            reader = csv.reader(file)
+            # Skip the header row
+            next(reader)
+            # Read each row and create a Product object
+            for row in reader:
+                product = Product.from_list_of_values_to_product_object(row)
+                products.append(product)
 
-    def write_products_to_csv(self, filename='products.csv'):
+        return products
+
+    def write_products_to_csv(self, filename='products_PS1.csv'):
         writing = False
+        file_exists = os.path.isfile(filename)
         with open(filename, mode='a', newline='') as file:
             writer = csv.writer(file)
             # Write the header row
-            writer.writerow(['product_id', 'name', 'price'])
+            if not file_exists:
+                writer.writerow(['product_id', 'name', 'price'])
 
             # Write each product as a row in the CSV
             for product in self.products:

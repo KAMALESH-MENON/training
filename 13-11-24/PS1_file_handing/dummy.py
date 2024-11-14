@@ -23,3 +23,7 @@ if __name__ == "__main__":
 
     result = l1.write_products_to_csv()
     print(result)
+    
+    read_result = l1.read_products_from_csv
+    for i in read_result:
+        print(i)

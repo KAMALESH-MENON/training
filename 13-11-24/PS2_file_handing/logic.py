@@ -71,5 +71,3 @@ class Logic:
             temp["orders"] = self.list_orders()
 
         return temp
-
-    
