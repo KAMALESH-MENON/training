@@ -7,7 +7,7 @@ class Logic:
     def __init__(self):
         self.products = []
 
-    def read_products_from_csv(filename='products.csv'):
+    def read_products_from_csv(self, filename='products_PS1.csv'):
         products = []
         with open(filename, mode='r') as file:
             reader = csv.reader(file)
