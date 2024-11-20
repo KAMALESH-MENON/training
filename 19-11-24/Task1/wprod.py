@@ -10,4 +10,3 @@ def calculate_product(a: int, b: int):
     l1 = Logic()
     result = l1.product(a, b)
     return {"message": "Success", "result": result}
-    
