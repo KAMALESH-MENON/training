@@ -1,5 +1,6 @@
 from db import db_connection
 from product import Product
+import sqlite3
 
 class Logic:
     """logic part of PS1"""
