@@ -1,4 +1,4 @@
-from sqlite3
+import sqlite3
 from user import User
 
 class Db:

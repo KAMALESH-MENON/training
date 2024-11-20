@@ -1,6 +1,6 @@
 import sqlite3
 
-DATABASE_FILE = 'products.db'
+DATABASE_FILE = 'PS1-DB.db'
 
 def db_connection():
     conn = sqlite3.connect(DATABASE_FILE)
