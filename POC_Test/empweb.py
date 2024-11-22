@@ -12,7 +12,7 @@ class Employee(BaseModel):
     dept_id: int
 
 @app.get("/get_employees", status_code=status.HTTP_200_OK)
-def get_employee():
+def get_employees():
     result = l1.get_employees()
     if len(result) == 0:
         raise HTTPException(

@@ -2,6 +2,9 @@ from db import db_connection
 from employee import Employee
 
 class Logic:
+    """
+    Logic part of POC_Test 
+    """
     def __init__(self):
         self.connection = db_connection()
 
