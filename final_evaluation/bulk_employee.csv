@@ -1,0 +1,16 @@
+employee_id,firstname,lastname,date_of_birth,date_of_joining,grade
+1,Arjun,Kumar,1990-01-01,2020-01-01,M1
+2,Rahul,Dravid,1985-05-05,2019-05-05,M2
+3,Katrina,Kaif,1988-03-15,2021-06-15,M3
+4,Ryan,Reynolds,1992-07-21,2018-09-10,M1
+5,Virat,Kohli,1987-11-23,2017-12-01,M2
+6,Deepika,Padukone,1986-01-05,2021-03-10,M2
+7,Chris,Hemsworth,1983-08-11,2020-05-22,M1
+8,Anushka,Sharma,1988-05-01,2019-11-15,M3
+9,Robert,Downey,1965-04-04,2018-02-09,M2
+10,Priyanka,Chopra,1982-07-18,2017-10-30,M1
+11,Scarlett,Johansson,1984-11-22,2021-01-07,M3
+12,Henry,Cavill,1983-05-05,2020-12-12,M2
+13,Emma,Watson,1990-04-15,2019-07-23,M1
+14,Ranveer,Singh,1985-07-06,2018-03-19,M3
+15,Jennifer,Lawrence,1990-08-15,2017-09-25,M2
