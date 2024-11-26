@@ -4,6 +4,9 @@ from .database import Base
 
 
 class User(Base):
+    """
+    Model representing a user in the database.
+    """
     __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, unique=True, index=True)
@@ -11,6 +14,9 @@ class User(Base):
 
 
 class Employee(Base):
+    """
+    Model representing a employee in the database.
+    """
     __tablename__ = "employees"
 
     employee_id = Column(Integer, primary_key=True, index=True)
