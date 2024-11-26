@@ -35,6 +35,7 @@ def register(user: UserLogin, db: Session = Depends(get_db)):
     return create_user(user, db)
 
 
+# Login
 @app.post("/login", tags=["login"])
 def login(user: UserLogin, db: Session = Depends(get_db)):
     """
@@ -70,7 +71,7 @@ def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     """
     return add_employee(employee, db)
 
-
+# List all employees
 @app.get("/employee", tags=["employee"], response_model=List[EmployeeRead])
 def view_all_employees(db: Session = Depends(get_db)):
     """
@@ -106,7 +107,7 @@ def search_employee(search_request: SearchRequest, db: Session = Depends(get_db)
     return search_employees(search_request, db)
 
 
-#Update employee based on employee_id
+# Update employee based on employee_id
 @app.put("/employee/{employee_id}", tags=["employee"], response_model=EmployeeRead)
 def update_employee_endpoint(employee_id: int, employee: EmployeeCreate, db: Session = Depends(get_db)):
     """
