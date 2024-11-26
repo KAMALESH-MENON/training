@@ -8,7 +8,7 @@ This week, I learned about:
     - Storing key-value pairs.
     - Methods used:
       - `pop()`: Removes the item with the specified key name.
-      - `get()`: Gets the value of the specified key name.
+      - `get()`: Gets the value of the specified key pname.
   - **Lists**: Working with ordered collections of items.
 - **Classes and Constructors**:
   - Defining classes and initializing objects (`__init__(self, ...)`)
