@@ -11,6 +11,7 @@ from .logic import (add_employee, authenticate_user,
                     search_employees, update_employee)
 from .schemas import (EmployeeCreate, EmployeeRead, SearchRequest, UserLogin,
                       UserRead)
+import csv
 
 app = FastAPI()
 
@@ -127,24 +128,23 @@ def update_employee_endpoint(employee_id: int, employee: EmployeeCreate, db: Ses
     return update_employee(employee_id, employee, db)
 
 
-# Bulk upload employees from CSV
-@app.post("/employee/bulk", tags=["upload/export employee"], response_model=List[EmployeeRead])
+# upload employees from CSV to store in database
+@app.post("/employee/upload", tags=["upload/export employee"], response_model=List[EmployeeRead])
 def bulk_upload_employees(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
     Creates employees from a CSV file.
-
+    
     Input:
-        file (StringIO): The CSV file containing employee data.
+        file (UploadFile): The CSV file containing employee data.
         db (Session): The database session.
 
     Returns:
         List[EmployeeRead]: A list of created employees.
-    
-    Raises: HTTPException: If there is an error processing the CSV file.
+        Raises: HTTPException: If there is an error processing the CSV file.
     """
-    content = file.file.read().decode("utf-8")
-    csv_file = StringIO(content)
-    return bulk_create_employees_from_csv(csv_file, db)
+    content = file.file.read().decode("utf-8").splitlines()
+    csv_reader = csv.DictReader(content)
+    return bulk_create_employees_from_csv(csv_reader, db)
 
 
 # Export employees to CSV
