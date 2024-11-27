@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from config import SessionLocal
 from employee import Employee
 
