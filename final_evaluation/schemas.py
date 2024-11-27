@@ -20,7 +20,7 @@ class UserRead(UserLogin):
     class Config:
         """
         Config: 
-            orm_mode (bool): Enables compatibility with ORM (Object Relational Mapper) for reading data.
+            from_attributes (bool): Enables compatibility with ORM (Object Relational Mapper) for reading data.
         """
         from_attributes = True
 
@@ -46,7 +46,7 @@ class EmployeeRead(EmployeeCreate):
     class Config:
         """
         Config: 
-            orm_mode (bool): Enables compatibility with ORM (Object Relational Mapper) for reading data.
+            from_attributes (bool): Enables compatibility with ORM (Object Relational Mapper) for reading data.
         """
         from_attributes = True
 
