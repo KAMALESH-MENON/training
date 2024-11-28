@@ -4,13 +4,14 @@ from typing import List
 
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from fastapi.security import HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from .models import Employee, User
 from .schemas import EmployeeCreate, EmployeeRead, SearchRequest, UserLogin
 
 
-def authenticate_user(user: UserLogin, db: Session):
+def authenticate_user(user: HTTPBasicCredentials, db: Session):
     """
     Authenticates a user by checking the provided credentials.
 
@@ -23,7 +24,7 @@ def authenticate_user(user: UserLogin, db: Session):
     Raises: 
         HTTPException: If the user id or password is incorrect.
     """
-    db_user = db.query(User).filter(User.user_id == user.user_id).first()
+    db_user = db.query(User).filter(User.user_id == user.username).first()
     if db_user is None or db_user.password != user.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

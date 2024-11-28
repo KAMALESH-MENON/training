@@ -2,6 +2,7 @@ from typing import List
 import csv
 
 from fastapi import Depends, FastAPI, File, Response, UploadFile
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
@@ -9,15 +10,16 @@ from .logic import (add_employee, authenticate_user,
                     bulk_create_employees_from_csv, create_user,
                     export_employees_to_csv, get_all_employees,
                     search_employees, update_employee)
-from .schemas import (EmployeeCreate, EmployeeRead, SearchRequest, UserLogin,
-                      UserRead)
+from .schemas import (EmployeeCreate, EmployeeRead,
+                      SearchRequest, UserLogin)
 
 app = FastAPI()
+security = HTTPBasic()
 
 Base.metadata.create_all(bind=engine)
 
 # Register a new user
-@app.post("/register", tags=["login"], response_model=UserRead)
+@app.post("/register", tags=["login"])
 def register(user: UserLogin, db: Session = Depends(get_db)):
     """
     Creates a new user in the database. 
@@ -37,7 +39,7 @@ def register(user: UserLogin, db: Session = Depends(get_db)):
 
 # Login
 @app.post("/login", tags=["login"])
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(user: UserLogin = Depends(security), db: Session = Depends(get_db)):
     """
     Authenticates a user by checking the provided credentials.
 
@@ -54,7 +56,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
 # Create a new employee
-@app.post("/employee", tags=["employee"], response_model=EmployeeRead)
+@app.post("/employee", dependencies=[Depends(login)], tags=["employee"], response_model=EmployeeRead)
 def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     """
     Creates a new employee in the database.
@@ -72,7 +74,7 @@ def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     return add_employee(employee, db)
 
 # List all employees
-@app.get("/employee", tags=["employee"], response_model=List[EmployeeRead])
+@app.get("/employee", dependencies=[Depends(login)], tags=["employee"], response_model=List[EmployeeRead])
 def view_all_employees(db: Session = Depends(get_db)):
     """
     Retrieves all employees from the database.
@@ -89,8 +91,8 @@ def view_all_employees(db: Session = Depends(get_db)):
 
 
 # Search employees by key
-@app.post("/employee/search", tags=["employee"], response_model=List[EmployeeRead])
-def search_employee(search_request: SearchRequest, db: Session = Depends(get_db)):
+@app.post("/employee/{key}/{value}", dependencies=[Depends(login)], tags=["employee"], response_model=List[EmployeeRead])
+def search_employee(key:str, value: str, db: Session = Depends(get_db)):
     """
     Searches for employees based on a key and value.
     
@@ -104,11 +106,12 @@ def search_employee(search_request: SearchRequest, db: Session = Depends(get_db)
     Raises:
         HTTPException: If the search key is invalid or if there is a database error.
     """
+    search_request = SearchRequest(key=key, value=value)
     return search_employees(search_request, db)
 
 
 # Update employee based on employee_id
-@app.put("/employee/{employee_id}", tags=["employee"], response_model=EmployeeRead)
+@app.put("/employee/{employee_id}", dependencies=[Depends(login)], tags=["employee"], response_model=EmployeeRead)
 def update_employee_endpoint(employee_id: int, employee: EmployeeCreate, db: Session = Depends(get_db)):
     """
     Updates an employee's details based on the provided employee ID.
@@ -128,7 +131,7 @@ def update_employee_endpoint(employee_id: int, employee: EmployeeCreate, db: Ses
 
 
 # upload employees from CSV to store in database
-@app.post("/employee/upload", tags=["upload/export employee"], response_model=List[EmployeeRead])
+@app.post("/employee/upload", dependencies=[Depends(login)], tags=["upload/export employee"], response_model=List[EmployeeRead])
 def bulk_upload_employees(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
     Creates employees from a CSV file.
@@ -147,7 +150,7 @@ def bulk_upload_employees(file: UploadFile = File(...), db: Session = Depends(ge
 
 
 # Export employees to CSV
-@app.get("/employee/export_csv", tags=["upload/export employee"])
+@app.get("/employee/export_csv", dependencies=[Depends(login)], tags=["upload/export employee"])
 def export_employees_csv(db: Session = Depends(get_db)):
     """
     Exports all employees to a CSV file.

@@ -1,11 +1,12 @@
 from final_evaluation.logic import authenticate_user, create_user, add_employee, get_all_employees, search_employees, update_employee, bulk_create_employees_from_csv, export_employees_to_csv
 from final_evaluation.schemas import UserLogin, EmployeeCreate, SearchRequest
 from final_evaluation.models import Base
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Create an in-memory SQLite database
-DATABASE_URL = "sqlite:///:memory:"
+DATABASE_URL = "sqlite:///final_evaluation/test.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -23,9 +24,10 @@ if __name__ == "__main__":
     db = next(get_db())
 
     # Test create_user
-    user = UserLogin(user_id=90, password="password")
-    print("Create User:", create_user(user, db))
+    # user = UserLogin(user_id=90, password="password")
+    # print("Create User:", create_user(user, db))
 
+    user = HTTPBasicCredentials(username="90", password="password")
     # Test authenticate_user
     print("Authenticate User:", authenticate_user(user, db))
 
