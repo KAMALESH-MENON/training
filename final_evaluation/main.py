@@ -1,5 +1,5 @@
-from io import StringIO
 from typing import List
+import csv
 
 from fastapi import Depends, FastAPI, File, Response, UploadFile
 from sqlalchemy.orm import Session
@@ -11,7 +11,6 @@ from .logic import (add_employee, authenticate_user,
                     search_employees, update_employee)
 from .schemas import (EmployeeCreate, EmployeeRead, SearchRequest, UserLogin,
                       UserRead)
-import csv
 
 app = FastAPI()
 

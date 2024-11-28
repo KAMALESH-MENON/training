@@ -247,43 +247,6 @@ def bulk_create_employees_from_csv(reader: csv.DictReader, db: Session):
             detail="Error processing CSV file",
         ) from exc
 
-# def bulk_create_employees_from_csv(file: StringIO, db: Session):
-#     """
-#     Creates employees from a CSV file.
-
-#     Input:
-#         file (StringIO): The CSV file containing employee data.
-#         db (Session): The database session.
-
-#     Returns:
-#         List[EmployeeRead]: A list of created employees.
-    
-#     Raises: HTTPException: If there is an error processing the CSV file.
-#     """
-#     try:
-#         reader = csv.DictReader(file)
-#         employees = []
-#         for row in reader:
-#             employee_data = EmployeeCreate(**row)
-#             db_employee = Employee(
-#                 firstname=employee_data.firstname,
-#                 lastname=employee_data.lastname,
-#                 date_of_birth=employee_data.date_of_birth,
-#                 date_of_joining=employee_data.date_of_joining,
-#                 grade=employee_data.grade,
-#             )
-#             db.add(db_employee)
-#             db.commit()
-#             db.refresh(db_employee)
-#             employees.append(db_employee)
-#         return employees
-#     except Exception as exc:
-#         db.rollback()
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail="Error processing CSV file",
-#         ) from exc
-
 
 def export_employees_to_csv(db: Session) -> str:
     """
