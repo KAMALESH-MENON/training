@@ -36,7 +36,7 @@ def get_all_pokemon() -> Page[Pokemon]:
 @app.post("/pokemon/{key}/{value}", tags=["Pokedex"], response_model=List[Pokemon])
 def get_pokemon(key: str, value: str):
     search_list = []
-    
+
     if key == "id":
         for pokemon in pokemons:
             if pokemon["id"] == int(value):
@@ -104,13 +104,21 @@ def get_pokemon(key: str, value: str):
 
 @app.post("/pokemon", tags=["Pokedex"], status_code=status.HTTP_201_CREATED)
 def create_pokemon(new_pokemon: Pokemon):
-    if pokemons:
-        max_id = max(pokemon["id"] for pokemon in pokemons)
-        new_pokemon.id = max_id + 1
-    else:
-        new_pokemon.id = 1
-    pokemons.append(new_pokemon.dict())
+    max_id = len(pokemons) 
+    new_pokemon.id = max_id + 1
+    # if pokemons:
+    #     max_id = max(pokemon["id"] for pokemon in pokemons)
+    #     new_pokemon.id = max_id + 1
+    # else:
+    #     new_pokemon.id = 1
+    pokemons.append(new_pokemon.model_dump())
     return {"detail": "Added pokemon.", "pokemon": new_pokemon}
+
+@app.put("/pokemon", tags=["Pokedex"], status_code=status.HTTP_202_ACCEPTED)
+def update_pokemon(update_pokemon: Pokemon):
+    pass
+
+
 
 @app.delete("/pokemon", tags=["Pokedex"], status_code=status.HTTP_200_OK)
 def delete_pokemon(id: int):

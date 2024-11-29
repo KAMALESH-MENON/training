@@ -14,12 +14,12 @@ class Type(BaseModel):
 
 class Pokemon(BaseModel):
     id: int
-    name: str
-    height: int
-    weight: int
-    xp: int
-    image_url: HttpUrl
-    pokemon_url: HttpUrl
+    name: str | None = None
+    height: int | None = None
+    weight: int  | None = None
+    xp: int | None = None
+    image_url: HttpUrl | None = None
+    pokemon_url: HttpUrl | None = None
     abilities: List[Ability]
     stats: List[Stat]
     types: List[Type]
