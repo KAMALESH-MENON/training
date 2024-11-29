@@ -114,11 +114,6 @@ def create_pokemon(new_pokemon: Pokemon):
     pokemons.append(new_pokemon.model_dump())
     return {"detail": "Added pokemon.", "pokemon": new_pokemon}
 
-@app.put("/pokemon", tags=["Pokedex"], status_code=status.HTTP_202_ACCEPTED)
-def update_pokemon(update_pokemon: Pokemon):
-    pass
-
-
 
 @app.delete("/pokemon", tags=["Pokedex"], status_code=status.HTTP_200_OK)
 def delete_pokemon(id: int):
