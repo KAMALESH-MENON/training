@@ -1,15 +1,12 @@
 import json
-from typing import List
-from fastapi import FastAPI, HTTPException, status
-from fastapi_pagination import Page, add_pagination, paginate
-from simple_pokemon.schemas import Pokemon
+from typing import List, Optional
+from fastapi import FastAPI, HTTPException, status, Query
+from simple_pokemon.schemas import Pokemon, UpdatePokemon
 
 app = FastAPI(
     docs_url="/",
     title="Simple Pokemon",
     )
-
-add_pagination(app)
 
 pokemons = []
 
@@ -20,111 +17,104 @@ def load_data():
         pokemons.extend(json.load(file))
     return f'total {len(pokemons)} pokemon added.'
 
-
 load_data()
 
 @app.get("/pokemon", tags=["Pokedex"])
-def get_all_pokemon() -> Page[Pokemon]:
+async def list_pokemon(page: int = Query(1, gt=0), size: int = Query(10, ge=5, le=100)):
+    page_end = (len(pokemons) + size - 1) // size
+    if page > page_end:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Page exceeds max page number."
+        )
+
+    start = (page-1) * size
+    end = start + size
+
     if pokemons:
-        return paginate(pokemons)
+        return pokemons[start:end]
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="No pokemon found."
         )
 
 
-@app.post("/pokemon/{key}/{value}", tags=["Pokedex"], response_model=List[Pokemon])
-def get_pokemon(key: str, value: str):
-    search_list = []
-
-    if key == "id":
-        for pokemon in pokemons:
-            if pokemon["id"] == int(value):
-                search_list.append(pokemon)
-
-    elif key == "name":
-        for pokemon in pokemons:
-            if pokemon["name"] == value:
-                search_list.append(pokemon)
-
-    elif key == "height":
-        for pokemon in pokemons:
-            if pokemon["height"] == int(value):
-                search_list.append(pokemon)
-
-    elif key == "weight":
-        for pokemon in pokemons:
-            if pokemon["weight"] == int(value):
-                search_list.append(pokemon)
-
-    elif key == "xp":
-        for pokemon in pokemons:
-            if pokemon["xp"] == int(value):
-                search_list.append(pokemon)
-
-    elif key == "image_url":
-        for pokemon in pokemons:
-            if pokemon["image_url"] == value:
-                search_list.append(pokemon)
-
-    elif key == "pokemon_url":
-        for pokemon in pokemons:
-            if pokemon["pokemon_url"] == value:
-                search_list.append(pokemon)
-
-    elif key == "abilities":
-        for pokemon in pokemons:
-            if value in pokemon["abilities"]:
-                search_list.append(pokemon)
-
-    elif key == "stats":
-        for pokemon in pokemons:
-            if value in pokemon["stats"]:
-                search_list.append(pokemon)
-
-    elif key == "types":
-        for pokemon in pokemons:
-            if value in pokemon["types"]:
-                search_list.append(pokemon)
-
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid search key"
+@app.get("/pokemon/{id}", tags=["Pokedex"], response_model=Pokemon)
+async def retrieve_pokemon(id: int):
+    for pokemon in pokemons:
+        if pokemon["id"] == id:
+            return pokemon
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No pokemon with id: {id}"
         )
+
+
+@app.get("/pokemon/search/name", tags=["Pokedex"], response_model=List[Pokemon])
+async def search_name(name: str):
+    search_list = [pokemon for pokemon in pokemons if pokemon["name"] == name]
 
     if not search_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No pokemon with {key} = {value}"
+            detail=f"No pokemon with name: {name}"
         )
+    return search_list
+
+
+@app.get("/pokemon/search/type", tags=["Pokedex"], response_model=List[Pokemon])
+async def search_by_types(type: Optional[List[str]] = Query(None)):
+    if not type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Type parameter is required."
+            )
+
+    search_list = [
+        pokemon for pokemon in pokemons
+        if any(t["name"].lower() in [t.lower() for t in type] for t in pokemon["types"])
+    ]
+
+    if not search_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No Pokémon found with types: {type}"
+            )
 
     return search_list
 
 
-@app.post("/pokemon", tags=["Pokedex"], status_code=status.HTTP_201_CREATED)
-def create_pokemon(new_pokemon: Pokemon):
-    max_id = len(pokemons) 
-    new_pokemon.id = max_id + 1
-    # if pokemons:
-    #     max_id = max(pokemon["id"] for pokemon in pokemons)
-    #     new_pokemon.id = max_id + 1
-    # else:
-    #     new_pokemon.id = 1
+@app.post("/pokemon/{id}", tags=["Pokedex"], status_code=status.HTTP_201_CREATED)
+async def create_pokemon(new_pokemon: Pokemon):
+    new_pokemon.id = len(pokemons) + 1
     pokemons.append(new_pokemon.model_dump())
     return {"detail": "Added pokemon.", "pokemon": new_pokemon}
 
 
-@app.delete("/pokemon", tags=["Pokedex"], status_code=status.HTTP_200_OK)
-def delete_pokemon(id: int):
-    pokemon = get_pokemon(key="id",value=str(id))
-    if pokemon:
-        pokemons.remove(pokemon[0])
-        return {
-            "detail": "Pokemon deleted sucessfully.",
-            "pokemon": pokemon[0]
+@app.patch("/pokemon/{id}", tags=["Pokedex"], response_model=Pokemon)
+async def partial_update(id: int, updated_data: UpdatePokemon):
+    for pokemon in pokemons:
+        if pokemon["id"] == id:
+            for key, value in updated_data.model_dump().items():
+                if value is not None:
+                    pokemon[key] = value
+            return pokemon
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Pokemon with id {id} not found."
+        )
+
+
+@app.delete("/pokemon/{id}", tags=["Pokedex"], status_code=status.HTTP_200_OK)
+async def delete_pokemon(id: int):
+    for index, pokemon in enumerate(pokemons):
+        if pokemon["id"] == id:
+            pokemons.pop(index)
+            return {
+                "detail": f"Pokemon with id = {id}, has been deleted."
             }
     raise HTTPException(
-        detail=f"Pokemon with id:{id} not found.",
+        detail=f"Pokemon with id: {id} not found.",
         status_code= status.HTTP_404_NOT_FOUND
     )

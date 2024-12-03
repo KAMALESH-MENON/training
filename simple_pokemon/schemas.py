@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, Field
 from typing import List
 
 class Ability(BaseModel):
@@ -14,12 +14,23 @@ class Type(BaseModel):
 
 class Pokemon(BaseModel):
     id: int
-    name: str | None = None
-    height: int | None = None
-    weight: int  | None = None
-    xp: int | None = None
-    image_url: HttpUrl | None = None
-    pokemon_url: HttpUrl | None = None
-    abilities: List[Ability]
-    stats: List[Stat]
-    types: List[Type]
+    name: str = None
+    height: int = None
+    weight: int  = None
+    xp: int = None
+    image_url: HttpUrl = None
+    pokemon_url: HttpUrl = None
+    abilities: List[Ability] = None
+    stats: List[Stat] = None
+    types: List[Type] = None
+
+class UpdatePokemon(BaseModel):
+    name: str = None
+    height: int = None
+    weight: int  = None
+    xp: int = None
+    image_url: HttpUrl = None
+    pokemon_url: HttpUrl = None
+    abilities: List[Ability] = None
+    stats: List[Stat] = None
+    types: List[Type] = None
