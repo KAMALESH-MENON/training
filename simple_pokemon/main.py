@@ -50,40 +50,6 @@ async def retrieve_pokemon(id: int):
         )
 
 
-@app.get("/pokemon/search/name", tags=["Pokedex"], response_model=List[Pokemon])
-async def search_name(name: str):
-    search_list = [pokemon for pokemon in pokemons if pokemon["name"] == name]
-
-    if not search_list:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No pokemon with name: {name}"
-        )
-    return search_list
-
-
-@app.get("/pokemon/search/type", tags=["Pokedex"], response_model=List[Pokemon])
-async def search_by_types(type: Optional[List[str]] = Query(None)):
-    if not type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Type parameter is required."
-            )
-
-    search_list = [
-        pokemon for pokemon in pokemons
-        if any(t["name"].lower() in [t.lower() for t in type] for t in pokemon["types"])
-    ]
-
-    if not search_list:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No Pokémon found with types: {type}"
-            )
-
-    return search_list
-
-
 @app.post("/pokemon/{id}", tags=["Pokedex"], status_code=status.HTTP_201_CREATED)
 async def create_pokemon(new_pokemon: Pokemon):
     new_pokemon.id = len(pokemons) + 1
