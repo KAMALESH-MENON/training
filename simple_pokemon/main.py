@@ -38,7 +38,7 @@ async def list_pokemon(
     #search
     if name is not None:
         search_results = [
-            pokemon for pokemon in search_results 
+            pokemon for pokemon in search_results
             if name.lower() in pokemon['name'].lower()
             ]
 
@@ -91,12 +91,16 @@ async def retrieve_pokemon(id: int):
 
 @app.post("/pokemon/{id}", tags=["Pokedex"], status_code=status.HTTP_201_CREATED)
 async def create_pokemon(new_pokemon: Pokemon):
-    new_pokemon.id = len(pokemons) + 1
+    if not pokemons:
+        new_pokemon.id = 1
+    else:
+        max_id = max(pokemon["id"] for pokemon in pokemons)
+        new_pokemon.id = max_id + 1
     pokemons.append(new_pokemon.model_dump())
     return {"detail": "Added pokemon.", "pokemon": new_pokemon}
 
 
-@app.patch("/pokemon/{id}", tags=["Pokedex"], response_model=Pokemon)
+@app.put("/pokemon/{id}", tags=["Pokedex"], response_model=Pokemon)
 async def partial_update(id: int, updated_data: UpdatePokemon):
     for pokemon in pokemons:
         if pokemon["id"] == id:
