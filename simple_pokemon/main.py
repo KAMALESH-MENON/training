@@ -19,7 +19,7 @@ def load_data():
 
 load_data()
 
-@app.get("/pokemon", tags=["Pokedex"])
+@app.get("/pokemon", tags=["Pokedex"], response_model=List[Pokemon])
 async def list_pokemon(
     page: int = Query(1, gt=0),
     size: int = Query(10, ge=5, le=100),
