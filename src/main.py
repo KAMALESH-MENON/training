@@ -15,7 +15,6 @@ async def load_data(app: FastAPI):
 
 
 app = FastAPI(
-    docs_url="/",
     lifespan=load_data
     )
 
