@@ -12,7 +12,7 @@ class Stat(BaseModel):
 class Type(BaseModel):
     name: str
 
-class PokemonBase(BaseModel):
+class PokemonInput(BaseModel):
     name: str
     height: int
     weight: int
@@ -23,11 +23,17 @@ class PokemonBase(BaseModel):
     stats: List[Stat]
     types: List[Type]
 
-class PokemonInput(PokemonBase):
-    pass
-
-class PokemonOutput(PokemonBase):
+class PokemonOutput(BaseModel):
     id: int
+    name: str
+    height: int
+    weight: int
+    xp: int
+    image_url: HttpUrl
+    pokemon_url: HttpUrl
+    abilities: List[Ability]
+    stats: List[Stat]
+    types: List[Type]
 
 class PokemonUpdate(BaseModel):
     name: Optional[str] = None
