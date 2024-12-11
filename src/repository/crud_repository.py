@@ -1,48 +1,83 @@
 from src.config.database import connection
 from src.schemas.pokemon_schema import PokemonInput, PokemonUpdate, PokemonOutput
-from typing import List
+from typing import List, Optional
 
 class CrudRepository:
     def __init__(self):
         pass
 
     def list_pokemons_repository(
-        self, name,
-        min_height, max_height,
-        min_weight, max_weight,
-        min_xp, max_xp,
-        page, size
+        self, page: int, size: int,
+        name: Optional[str],
+        min_height: Optional[int], max_height: Optional[int],
+        min_weight: Optional[int], max_weight: Optional[int],
+        min_xp: Optional[int], max_xp: Optional[int]
         ) -> List[PokemonOutput]:
+
         offset = (page - 1) * size
-        
+
+        query = """
+        SELECT 
+            p.id,
+            p.name,
+            p.height,
+            p.weight,
+            p.xp,
+            p.image_url,
+            p.pokemon_url,
+            JSON_AGG(DISTINCT jsonb_build_object('name', a.ability_name, 'is_hidden', a.is_hidden)) AS abilities,
+            JSON_AGG(DISTINCT jsonb_build_object('name', s.stat_name, 'base_stat', s.stat_value)) AS stats,
+            JSON_AGG(DISTINCT jsonb_build_object('name', t.type_name)) AS types
+        FROM 
+            public.pokemon p 
+        LEFT JOIN 
+            public.abilities a ON p.id = a.pokemon_id 
+        LEFT JOIN 
+            public.stats s ON p.id = s.pokemon_id
+        LEFT JOIN 
+            public.types t ON p.id = t.pokemon_id 
+        """
+
+        conditions = []
+        params = []
+
+        if name:
+            conditions.append("p.name ILIKE %s")
+            params.append(f"%{name}%")
+
+        if min_height:
+            conditions.append("p.height >= %s")
+            params.append(min_height)
+
+        if max_height:
+            conditions.append("p.height <= %s")
+            params.append(max_height)
+
+        if min_weight:
+            conditions.append("p.weight >= %s")
+            params.append(min_weight)
+
+        if max_weight:
+            conditions.append("p.weight <= %s")
+            params.append(max_weight)
+
+        if min_xp:
+            conditions.append("p.xp >= %s")
+            params.append(min_xp)
+
+        if max_xp:
+            conditions.append("p.xp <= %s")
+            params.append(max_xp)
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        query += " GROUP BY p.id"
+        query += " LIMIT %s OFFSET %s"
+        params.extend([size, offset])
+
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT 
-                    p.id,
-                    p.name,
-                    p.height,
-                    p.weight,
-                    p.xp,
-                    p.image_url,
-                    p.pokemon_url,
-                    JSON_AGG(DISTINCT jsonb_build_object('name', a.ability_name, 'is_hidden', a.is_hidden)) AS abilities,
-                    JSON_AGG(DISTINCT jsonb_build_object('name', s.stat_name, 'base_stat', s.stat_value)) AS stats,
-                    JSON_AGG(DISTINCT jsonb_build_object('name', t.type_name)) AS types
-                FROM 
-                    public.pokemon p 
-                INNER JOIN 
-                    public.abilities a ON p.id = a.pokemon_id 
-                INNER JOIN 
-                    public.stats s ON p.id = s.pokemon_id
-                INNER JOIN 
-                    public.types t ON p.id = t.pokemon_id 
-                GROUP BY
-                    p.id
-                ;
-                """,
-                (size, offset,)
-            )
+            cursor.execute(query, tuple(params))
             rows = cursor.fetchall()
             pokemons = [self.convert_tuple_to_pokemon_object(row) for row in rows]
             return pokemons
