@@ -1,4 +1,6 @@
 import requests
+from src.utils.db_utils import create_tables, insert_pokemon
+
 
 class LoadData:
 
@@ -9,13 +11,16 @@ class LoadData:
 
         if response.status_code == 200:
             pokemons = response.json()
-            pokemon_dict = {
-                pokemon["id"]: pokemon for pokemon in pokemons
-                }
-            return pokemon_dict
+            pokemon_dict = {pokemon["id"]: pokemon for pokemon in pokemons}
+
+            # Create tables and insert data into the database
+            create_tables()
+            insert_pokemon(pokemon_dict)
+
+            return True
         else:
             response.raise_for_status()
 
+
 if __name__ == "__main__":
     data = LoadData.add_data()
-    print(data.get(1))
