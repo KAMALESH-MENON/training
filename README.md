@@ -47,7 +47,11 @@ Source files follows repository pattern and service layer.
 
 ## Features
 
-   ## CRUD Operations
+  ## 1. Data Initialization
+
+  - Loads initial Pokemon data from a remote JSON source when the application starts.
+
+  ## 2. CRUD Operations
 
   - **Create Pokemon**: Adds a new Pokemon to the database.
   - **Read Pokemon**: Fetches details of a specific Pokemon by its ID.
@@ -64,10 +68,6 @@ Source files follows repository pattern and service layer.
       - mininum xp & maximum xp
   - **Update Pokemon**: Updates details of a specific Pokemon.
   - **Delete Pokemon**: Removes a Pokemon from the database.
-
-  ## Data Initialization
-
-  - Loads initial Pokemon data from a remote JSON source when the application starts.
 
 ## Installation
 
