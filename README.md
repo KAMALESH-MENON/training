@@ -96,9 +96,8 @@ Source files follows repository pattern and service layer.
 | `POST`   | `/pokemon`              | Create a new Pokemon.            |
 | `GET`    | `/pokemon/{pokemon_id}` | Get details of a specific Pokemon.|
 | `PUT`    | `/pokemon/{pokemon_id}` | Update a Pokemon.                |
-| `PATCH`  | `/pokemon/{pokemon_id}` | Partially update a Pokemon.      |
 | `DELETE` | `/pokemon/{pokemon_id}` | Delete a Pokemon.                |
-| `GET`    | `/pokemon`              | List and filter Pokemon.         |
+| `GET`    | `/pokemon`              | Lists, search and filters Pokemon.|
 
 
 ## External Data Source
