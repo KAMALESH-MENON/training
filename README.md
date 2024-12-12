@@ -49,7 +49,7 @@ Source files follows repository pattern and service layer.
 
   ## 1. Data Initialization
 
-  - Loads initial Pokemon data from a remote JSON source when the application starts.
+  -  Populates pokemon data from a remote JSON source when the application starts after creation of tables in database.
 
   ## 2. CRUD Operations
 
