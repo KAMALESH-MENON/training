@@ -2,18 +2,26 @@ from typing import List, Optional
 from src.config.database import connection
 from src.schemas.pokemon_schema import PokemonInput, PokemonUpdate, PokemonOutput
 
+
 class CrudRepository:
     def __init__(self):
         pass
 
     def list_pokemons_repository(
-        self, page: int, size: int,
-        name: Optional[str], height: Optional[int],
-        weight: Optional[int], xp: Optional[int],
-        min_height: Optional[int], max_height: Optional[int],
-        min_weight: Optional[int], max_weight: Optional[int],
-        min_xp: Optional[int], max_xp: Optional[int]
-        ) -> List[PokemonOutput]:
+        self,
+        page: int,
+        size: int,
+        name: Optional[str],
+        height: Optional[int],
+        weight: Optional[int],
+        xp: Optional[int],
+        min_height: Optional[int],
+        max_height: Optional[int],
+        min_weight: Optional[int],
+        max_weight: Optional[int],
+        min_xp: Optional[int],
+        max_xp: Optional[int],
+    ) -> List[PokemonOutput]:
 
         offset = (page - 1) * size
 
@@ -95,7 +103,6 @@ class CrudRepository:
             pokemons = [self.convert_tuple_to_pokemon_object(row) for row in rows]
             return pokemons
 
-
     def read_pokemon_repository(self, pokemon_id: int) -> PokemonOutput:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -108,28 +115,24 @@ class CrudRepository:
                     p.xp,
                     p.image_url,
                     p.pokemon_url,
-                    (
-                        SELECT JSONB_AGG(jsonb_build_object('name', a.ability_name, 'is_hidden', a.is_hidden))
-                        FROM public.abilities a
-                        WHERE p.id = a.pokemon_id
-                    ) AS abilities,
-                    (
-                        SELECT JSONB_AGG(jsonb_build_object('name', s.stat_name, 'base_stat', s.stat_value))
-                        FROM public.stats s
-                        WHERE p.id = s.pokemon_id
-                    ) AS stats,
-                    (
-                        SELECT JSONB_AGG(jsonb_build_object('name', t.type_name))
-                        FROM public.types t
-                        WHERE p.id = t.pokemon_id
-                    ) AS types
+                    JSON_AGG(DISTINCT jsonb_build_object('name', a.ability_name, 'is_hidden', a.is_hidden)) AS abilities,
+                    JSON_AGG(DISTINCT jsonb_build_object('name', s.stat_name, 'base_stat', s.stat_value)) AS stats,
+                    JSON_AGG(DISTINCT jsonb_build_object('name', t.type_name)) AS types
                 FROM 
                     public.pokemon p 
+                LEFT JOIN 
+                    public.abilities a ON p.id = a.pokemon_id 
+                LEFT JOIN 
+                    public.stats s ON p.id = s.pokemon_id
+                LEFT JOIN 
+                    public.types t ON p.id = t.pokemon_id
                 WHERE
                     p.id = %s
+                GROUP BY
+                    p.id
                 ;
                 """,
-                (pokemon_id,)
+                (pokemon_id,),
             )
             row = cursor.fetchone()
             if row is None:
@@ -137,7 +140,6 @@ class CrudRepository:
             pokemon = self.convert_tuple_to_pokemon_object(row)
 
             return pokemon
-
 
     def create_pokemon_repository(self, pokemon: PokemonInput) -> PokemonOutput:
         pokemon = pokemon.model_dump(exclude_none=True)
@@ -171,7 +173,7 @@ class CrudRepository:
                         (%s, %s, %s)
                     ;
                     """,
-                        (pokemon_id, ability["name"], ability["is_hidden"]),
+                    (pokemon_id, ability["name"], ability["is_hidden"]),
                 )
 
             for stat in pokemon.get("stats", []):
@@ -183,25 +185,26 @@ class CrudRepository:
                         (%s, %s, %s)
                     ;
                     """,
-                        (pokemon_id, stat["name"], stat["base_stat"]),
+                    (pokemon_id, stat["name"], stat["base_stat"]),
                 )
 
-            for type in pokemon.get("types", []):
+            for type_ in pokemon.get("types", []):
                 cursor.execute(
                     """
                     INSERT INTO public.types (pokemon_id, type_name)
                     VALUES (%s, %s)
                     ;
                     """,
-                        (pokemon_id, type["name"]),
+                    (pokemon_id, type_["name"]),
                 )
             connection.commit()
 
             pokemon = self.read_pokemon_repository(pokemon_id)
             return pokemon
 
-
-    def update_pokemon_repository(self, pokemon_id: int, pokemon: PokemonUpdate) -> PokemonUpdate:
+    def update_pokemon_repository(
+        self, pokemon_id: int, pokemon: PokemonUpdate
+    ) -> PokemonUpdate:
         pokemon = pokemon.model_dump()
         with connection.cursor() as cursor:
             cursor.execute(
@@ -218,7 +221,7 @@ class CrudRepository:
                 WHERE 
                     id = %s;
                 """,
-                    (
+                (
                     pokemon.get("name"),
                     pokemon.get("height"),
                     pokemon.get("weight"),
@@ -226,7 +229,7 @@ class CrudRepository:
                     str(pokemon.get("image_url")),
                     str(pokemon.get("pokemon_url")),
                     pokemon_id,
-                    ),
+                ),
             )
 
             cursor.execute(
@@ -236,7 +239,7 @@ class CrudRepository:
                 WHERE 
                     pokemon_id = %s;
                 """,
-                    (pokemon_id,)
+                (pokemon_id,),
             )
             for ability in pokemon.get("abilities", []):
                 cursor.execute(
@@ -247,7 +250,7 @@ class CrudRepository:
                         (%s, %s, %s)
                     ;
                     """,
-                        (pokemon_id, ability["name"], ability["is_hidden"]),
+                    (pokemon_id, ability["name"], ability["is_hidden"]),
                 )
 
             cursor.execute(
@@ -258,7 +261,7 @@ class CrudRepository:
                     pokemon_id = %s
                 ;
                 """,
-                    (pokemon_id,)
+                (pokemon_id,),
             )
             for stat in pokemon.get("stats", []):
                 cursor.execute(
@@ -269,7 +272,7 @@ class CrudRepository:
                         (%s, %s, %s)
                     ;
                     """,
-                        (pokemon_id, stat["name"], stat["base_stat"]),
+                    (pokemon_id, stat["name"], stat["base_stat"]),
                 )
 
             cursor.execute(
@@ -279,9 +282,9 @@ class CrudRepository:
                 WHERE
                     pokemon_id = %s
                 ;""",
-                    (pokemon_id,)
+                (pokemon_id,),
             )
-            for type in pokemon.get("types", []):
+            for type_ in pokemon.get("types", []):
                 cursor.execute(
                     """
                     INSERT INTO 
@@ -290,13 +293,12 @@ class CrudRepository:
                         (%s, %s)
                     ;
                     """,
-                        (pokemon_id, type["name"]),
+                    (pokemon_id, type_["name"]),
                 )
             connection.commit()
 
             updated_pokemon = self.read_pokemon_repository(pokemon_id)
             return updated_pokemon
-
 
     def delete_pokemon_repository(self, pokemon_id: int) -> bool:
         with connection.cursor() as cursor:
@@ -308,11 +310,10 @@ class CrudRepository:
                     id = %s
                 ;
                 """,
-                    (pokemon_id,)
-                )
+                (pokemon_id,),
+            )
             connection.commit()
             return True
-
 
     def pokemon_exists_by_name(self, name: str) -> bool:
         with connection.cursor() as cursor:
@@ -326,9 +327,8 @@ class CrudRepository:
                     name = %s
                 ;
                 """,
-                    (name,)
-                )
-
+                (name,),
+            )
 
     @staticmethod
     def convert_tuple_to_pokemon_object(row: tuple) -> PokemonOutput:
@@ -342,5 +342,5 @@ class CrudRepository:
             pokemon_url=row[6],
             abilities=row[7],
             stats=row[8],
-            types=row[9]
-            )
+            types=row[9],
+        )

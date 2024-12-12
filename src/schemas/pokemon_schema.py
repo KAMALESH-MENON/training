@@ -1,16 +1,20 @@
-from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
+from pydantic import BaseModel, HttpUrl
+
 
 class Ability(BaseModel):
     name: str
     is_hidden: bool
 
+
 class Stat(BaseModel):
     name: str
     base_stat: int
 
+
 class Type(BaseModel):
     name: str
+
 
 class PokemonInput(BaseModel):
     name: str
@@ -23,6 +27,7 @@ class PokemonInput(BaseModel):
     stats: List[Stat]
     types: List[Type]
 
+
 class PokemonOutput(BaseModel):
     id: int
     name: str
@@ -34,6 +39,7 @@ class PokemonOutput(BaseModel):
     abilities: List[Ability]
     stats: List[Stat]
     types: List[Type]
+
 
 class PokemonUpdate(BaseModel):
     name: Optional[str] = None

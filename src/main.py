@@ -13,8 +13,6 @@ async def load_data(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    lifespan=load_data
-    )
+app = FastAPI(lifespan=load_data)
 
 app.include_router(crud.router)
