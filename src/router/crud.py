@@ -37,6 +37,9 @@ def list_pokemons(
     page: int = Query(1, gt=0),
     size: int = Query(10, gt=0, le=100),
     name: str = Query(None, description="Search by Pokemon name"),
+    height: int = Query(None, description="Search by Pokemon height"),
+    weight: int = Query(None, description="Search by Pokemon weight"),
+    xp: int = Query(None, description="Search by Pokemon xp"),
     min_height: int = Query(None, description="Filter by minimum height", gt=0),
     max_height: int = Query(None, description="Filter by maximum height", gt=0),
     min_weight: int = Query(None, description="Filter by minimum weight", gt=0),
@@ -62,9 +65,10 @@ def list_pokemons(
 
     _service = service()
     return _service.list_pokemons_service(
-        page, size,
-        name,
-        min_height, max_height,
-        min_weight, max_weight,
-        min_xp, max_xp
+        page=page, size=size,
+        name=name, height=height,
+        weight=weight, xp=xp,
+        min_height=min_height, max_height=max_height,
+        min_weight=min_weight, max_weight=max_weight,
+        min_xp=min_xp, max_xp=max_xp
         )
