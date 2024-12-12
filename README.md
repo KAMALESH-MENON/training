@@ -94,10 +94,10 @@ Source files follows repository pattern and service layer.
 | Method   | Endpoint                | Description                       |
 |----------|-------------------------|-----------------------------------|
 | `POST`   | `/pokemon`              | Create a new Pokemon.            |
+| `GET`    | `/pokemon`              | Lists, search and filters Pokemon.|
 | `GET`    | `/pokemon/{pokemon_id}` | Get details of a specific Pokemon.|
 | `PUT`    | `/pokemon/{pokemon_id}` | Update a Pokemon.                |
 | `DELETE` | `/pokemon/{pokemon_id}` | Delete a Pokemon.                |
-| `GET`    | `/pokemon`              | Lists, search and filters Pokemon.|
 
 
 ## External Data Source
