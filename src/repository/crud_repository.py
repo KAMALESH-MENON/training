@@ -1,6 +1,6 @@
+from typing import List, Optional
 from src.config.database import connection
 from src.schemas.pokemon_schema import PokemonInput, PokemonUpdate, PokemonOutput
-from typing import List, Optional
 
 class CrudRepository:
     def __init__(self):
@@ -8,7 +8,8 @@ class CrudRepository:
 
     def list_pokemons_repository(
         self, page: int, size: int,
-        name: Optional[str],
+        name: Optional[str], height: Optional[int],
+        weight: Optional[int], xp: Optional[int],
         min_height: Optional[int], max_height: Optional[int],
         min_weight: Optional[int], max_weight: Optional[int],
         min_xp: Optional[int], max_xp: Optional[int]
@@ -44,6 +45,18 @@ class CrudRepository:
         if name:
             conditions.append("p.name ILIKE %s")
             params.append(f"%{name}%")
+
+        if height:
+            conditions.append("p.height = %s")
+            params.append(height)
+
+        if weight:
+            conditions.append("p.weight = %s")
+            params.append(weight)
+
+        if xp:
+            conditions.append("p.xp = %s")
+            params.append(xp)
 
         if min_height:
             conditions.append("p.height >= %s")
