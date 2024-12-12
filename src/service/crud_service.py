@@ -9,7 +9,8 @@ class CrudService:
 
     def list_pokemons_service(
         self, page, size,
-        name,
+        name,height,
+        weight, xp,
         min_height, max_height,
         min_weight, max_weight,
         min_xp, max_xp,
@@ -17,6 +18,7 @@ class CrudService:
 
         return self.repository.list_pokemons_repository(
             page=page, size=size, name=name,
+            height=height,weight=weight, xp=xp,
             min_height=min_height, max_height=max_height,
             min_weight=min_weight, max_weight=max_weight,
             min_xp=min_xp, max_xp=max_xp
