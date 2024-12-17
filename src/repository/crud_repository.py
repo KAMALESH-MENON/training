@@ -21,6 +21,7 @@ class CrudRepository:
         max_weight: Optional[int],
         min_xp: Optional[int],
         max_xp: Optional[int],
+        types: Optional[List[str]],
     ) -> List[PokemonOutput]:
 
         offset = (page - 1) * size
@@ -90,12 +91,21 @@ class CrudRepository:
             conditions.append("p.xp <= %s")
             params.append(max_xp)
 
+        if types:
+            type_conditions = " OR ".join(["t.type_name = %s"] * len(types))
+            conditions.append(f"({type_conditions})")
+            params.extend(types)
+            conditions.append(f"(SELECT COUNT(DISTINCT t.type_name) FROM public.types t WHERE t.pokemon_id = p.id AND t.type_name IN ({','.join(['%s']*len(types))})) = %s")
+            params.extend(types)
+            params.append(len(types))
+
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
         query += " GROUP BY p.id"
         query += " LIMIT %s OFFSET %s"
         params.extend([size, offset])
+        
 
         with connection.cursor() as cursor:
             cursor.execute(query, tuple(params))

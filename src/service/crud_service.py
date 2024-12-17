@@ -22,6 +22,7 @@ class CrudService:
         max_weight,
         min_xp,
         max_xp,
+        types,
     ) -> List[Optional[PokemonOutput]]:
 
         return self.repository.list_pokemons_repository(
@@ -37,6 +38,7 @@ class CrudService:
             max_weight=max_weight,
             min_xp=min_xp,
             max_xp=max_xp,
+            types=types,
         )
 
     def read_pokemon_service(self, pokemon_id: int) -> PokemonOutput:

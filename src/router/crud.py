@@ -48,6 +48,7 @@ def list_pokemons(
     max_weight: int = Query(None, description="Filter by maximum weight", gt=0),
     min_xp: int = Query(None, description="Filter by minimum XP", gt=0),
     max_xp: int = Query(None, description="Filter by maximum XP", gt=0),
+    types: List[str] = Query(None, description="Filter by Pokemon types"),
 ):
     if min_height and max_height and min_height > max_height:
         raise HTTPException(
@@ -79,4 +80,5 @@ def list_pokemons(
         max_weight=max_weight,
         min_xp=min_xp,
         max_xp=max_xp,
+        types=types,
     )
